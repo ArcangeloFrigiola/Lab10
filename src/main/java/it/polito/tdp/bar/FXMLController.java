@@ -29,7 +29,9 @@ public class FXMLController {
     	
     	this.txtResult.clear();
     	this.txtResult.appendText("Numero clienti: "+this.model.getClienti()+"\nNumero clienti soddisfatti: "
-    	+this.model.getClientiSoddisfatti()+"\nNumero clienti insoddisfatti: "+this.model.getClientiInsoddisfatti());
+    	+this.model.getClientiSoddisfatti()+"\nNumero clienti insoddisfatti: "+this.model.getClientiInsoddisfatti()+
+    	"\nPercentuale di insoddisfatti: "+((this.model.getClientiInsoddisfatti()*100)/this.model.getClienti())+"%");
+    	
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete

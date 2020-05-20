@@ -66,7 +66,7 @@ public class Simulator {
 	//Metodo che restituisce una tolleranza del cliente
 	public boolean getTolleranza() {
 		
-		double percentualeTolleranza = Math.random(); //Ad esempio 0.70, esiste una P[...] del 70% che il cliente sia tollernate
+		double percentualeTolleranza = 0.6; //Ad esempio 0.70, esiste una P[...] del 70% che il cliente sia tollernate
 		double valoreTolleranza = Math.random(); //Ad esempio 0.30
 		
 		if(valoreTolleranza<=percentualeTolleranza) {//se il valore di tolleranza rientra tra 0-percentualeTolleranza, allora il cliente è tollerante
@@ -133,8 +133,8 @@ public class Simulator {
 				if(persone<=4) {
 					if(this.tavoliDaQuattro>0) { //Se ho un tavolo da 4 libero, le metto li
 						
-						this.clienti++;
-						this.clientiSoddisfatti++;
+						this.clienti+=e.getNumeroPersone();
+						this.clientiSoddisfatti+= e.getNumeroPersone();
 						this.tavoliDaQuattro--;
 						this.tavoliDisponibili--;
 					    tableId = 4;
@@ -148,8 +148,8 @@ public class Simulator {
 						if (persone == 4) { //Se le persone sono esattamente 4, possono metterle o in un tavolo da 6 o in uno da 8 per riempire minimo il 50% del tavolo
 							if (this.tavoliDaSei > 0) {
 
-								this.clienti++;
-								this.clientiSoddisfatti++;
+								this.clienti+=e.getNumeroPersone();
+								this.clientiSoddisfatti+= e.getNumeroPersone();
 								this.tavoliDaSei--;
 								this.tavoliDisponibili--;
 								tableId = 6;
@@ -162,8 +162,8 @@ public class Simulator {
 								
 							}else if(this.tavoliDaOtto>0) {
 								
-								this.clienti++;
-								this.clientiSoddisfatti++;
+								this.clienti+=e.getNumeroPersone();
+								this.clientiSoddisfatti+= e.getNumeroPersone();
 								this.tavoliDaOtto--;
 								this.tavoliDisponibili--;
 								tableId = 8;
@@ -175,13 +175,13 @@ public class Simulator {
 								
 								
 							}else if(e.getTolleranza()) { //Se non ho nessun tavolo, provo a metterli al bancone (if tolleranza == TRUE)
-								this.clienti++;
-								this.clientiSoddisfatti++;
+								this.clienti+=e.getNumeroPersone();
+								this.clientiSoddisfatti+= e.getNumeroPersone();
 								System.out.println("I "+persone+" clienti si sono accomodati al bancone");
 								
 							}else {
-								this.clienti++;
-								this.clientiInsoddisfatti++;
+								this.clienti+=e.getNumeroPersone();
+								this.clientiInsoddisfatti+= e.getNumeroPersone();
 								System.out.println("I "+persone+" clienti sono rimasti insoddisfatti");
 								
 							}
@@ -189,8 +189,8 @@ public class Simulator {
 							
 							if (this.tavoliDaSei > 0) {
 
-								this.clienti++;
-								this.clientiSoddisfatti++;
+								this.clienti+=e.getNumeroPersone();
+								this.clientiSoddisfatti+= e.getNumeroPersone();
 								this.tavoliDaSei--;
 								this.tavoliDisponibili--;
 								tableId = 6;
@@ -202,24 +202,24 @@ public class Simulator {
 								
 								
 							}else if(e.getTolleranza()) { //Se non ho nessun tavolo, provo a metterli al bancone (if tolleranza == TRUE)
-								this.clienti++;
-								this.clientiSoddisfatti++;
+								this.clienti+=e.getNumeroPersone();
+								this.clientiSoddisfatti+= e.getNumeroPersone();
 								System.out.println("I "+persone+" clienti si sono accomodati al bancone");
 								
 							}else {
-								this.clienti++;
-								this.clientiInsoddisfatti++;
+								this.clienti+=e.getNumeroPersone();
+								this.clientiInsoddisfatti+= e.getNumeroPersone();
 								System.out.println("I "+persone+" clienti sono rimasti insoddisfatti");
 								
 							}
 						}else if(e.getTolleranza()) { //Se non ho nessun tavolo, provo a metterli al bancone (if tolleranza == TRUE)
-							this.clienti++;
-							this.clientiSoddisfatti++;
+							this.clienti+=e.getNumeroPersone();
+							this.clientiSoddisfatti+= e.getNumeroPersone();
 							System.out.println("I "+persone+" clienti si sono accomodati al bancone");
 							
 						}else {
-							this.clienti++;
-							this.clientiInsoddisfatti++;
+							this.clienti+=e.getNumeroPersone();
+							this.clientiInsoddisfatti+= e.getNumeroPersone();
 							System.out.println("I "+persone+" clienti sono rimasti insoddisfatti");
 							
 						}
@@ -228,8 +228,8 @@ public class Simulator {
 				}else if(persone<=6 && persone>4) {
 					if (this.tavoliDaSei > 0) { // Se ho un tavolo da 4 libero, le metto li
 
-						this.clienti++;
-						this.clientiSoddisfatti++;
+						this.clienti+=e.getNumeroPersone();
+						this.clientiSoddisfatti+= e.getNumeroPersone();
 						this.tavoliDaSei--;
 						this.tavoliDisponibili--;
 						tableId = 6;
@@ -243,8 +243,8 @@ public class Simulator {
 					}else {
 						if (this.tavoliDaOtto > 0) { // Se ho un tavolo da 4 libero, le metto li
 
-							this.clienti++;
-							this.clientiSoddisfatti++;
+							this.clienti+=e.getNumeroPersone();
+							this.clientiSoddisfatti+= e.getNumeroPersone();
 							this.tavoliDaOtto--;
 							this.tavoliDisponibili--;
 							tableId = 8;
@@ -256,8 +256,8 @@ public class Simulator {
 							
 						}else if (this.tavoliDaDieci > 0) { // Se ho un tavolo da 4 libero, le metto li
 
-							this.clienti++;
-							this.clientiSoddisfatti++;
+							this.clienti+=e.getNumeroPersone();
+							this.clientiSoddisfatti+= e.getNumeroPersone();
 							this.tavoliDaDieci--;
 							this.tavoliDisponibili--;
 							tableId = 10;
@@ -269,13 +269,13 @@ public class Simulator {
 							
 							
 						}else if(e.getTolleranza()) { //Se non ho nessun tavolo, provo a metterli al bancone (if tolleranza == TRUE)
-							this.clienti++;
-							this.clientiSoddisfatti++;
+							this.clienti+=e.getNumeroPersone();
+							this.clientiSoddisfatti+= e.getNumeroPersone();
 							System.out.println("I "+persone+" clienti si sono accomodati al bancone");
 							
 						}else {
-							this.clienti++;
-							this.clientiInsoddisfatti++;
+							this.clienti+=e.getNumeroPersone();
+							this.clientiInsoddisfatti+= e.getNumeroPersone();
 							System.out.println("I "+persone+" clienti sono rimasti insoddisfatti");
 							
 						}
@@ -285,8 +285,8 @@ public class Simulator {
 					
 					if (this.tavoliDaOtto > 0) { // Se ho un tavolo da 4 libero, le metto li
 
-						this.clienti++;
-						this.clientiSoddisfatti++;
+						this.clienti+=e.getNumeroPersone();
+						this.clientiSoddisfatti+= e.getNumeroPersone();
 						this.tavoliDaOtto--;
 						this.tavoliDisponibili--;
 						tableId = 8;
@@ -299,8 +299,8 @@ public class Simulator {
 						
 					}else if(this.tavoliDaDieci>0) {
 						
-						this.clienti++;
-						this.clientiSoddisfatti++;
+						this.clienti+=e.getNumeroPersone();
+						this.clientiSoddisfatti+= e.getNumeroPersone();
 						this.tavoliDaDieci--;
 						this.tavoliDisponibili--;
 						tableId = 10;
@@ -311,13 +311,13 @@ public class Simulator {
 						System.out.println("I "+persone+" clienti si sono accomodati al tavolo da "+tableId);
 						
 					}else if(e.getTolleranza()) { //Se non ho nessun tavolo, provo a metterli al bancone (if tolleranza == TRUE)
-						this.clienti++;
-						this.clientiSoddisfatti++;
+						this.clienti+=e.getNumeroPersone();
+						this.clientiSoddisfatti+= e.getNumeroPersone();
 						System.out.println("I "+persone+" clienti si sono accomodati al bancone");
 						
 					}else {
-						this.clienti++;
-						this.clientiInsoddisfatti++;
+						this.clienti+=e.getNumeroPersone();
+						this.clientiInsoddisfatti+= e.getNumeroPersone();
 						System.out.println("I "+persone+" clienti sono rimasti insoddisfatti");
 						
 					}
@@ -326,8 +326,8 @@ public class Simulator {
 					
 					if (this.tavoliDaDieci > 0) {
 
-						this.clienti++;
-						this.clientiSoddisfatti++;
+						this.clienti+=e.getNumeroPersone();
+						this.clientiSoddisfatti+= e.getNumeroPersone();
 						this.tavoliDaDieci--;
 						this.tavoliDisponibili--;
 						tableId = 10;
@@ -339,25 +339,26 @@ public class Simulator {
 						
 
 					}else if(e.getTolleranza()) { //Se non ho nessun tavolo, provo a metterli al bancone (if tolleranza == TRUE)
-						this.clienti++;
-						this.clientiSoddisfatti++;
+						this.clienti+=e.getNumeroPersone();
+						this.clientiSoddisfatti+= e.getNumeroPersone();
 						System.out.println("I "+persone+" clienti si sono accomodati al bancone");
 						
 					}else {
-						this.clienti++;
-						this.clientiInsoddisfatti++;
+						this.clienti+=e.getNumeroPersone();
+						this.clientiInsoddisfatti+= e.getNumeroPersone();
 						System.out.println("I "+persone+" clienti sono rimasti insoddisfatti");
 						
 					}
 
 				}
 			}else {
-				this.clienti++;
+				this.clienti+=e.getNumeroPersone();
+				
 				if(e.getTolleranza()) {
-					this.clientiSoddisfatti++;
+					this.clientiSoddisfatti+= e.getNumeroPersone();
 					System.out.println("I "+persone+" clienti si sono accomodati al bancone");
 				}else {
-					this.clientiInsoddisfatti++;
+					this.clientiInsoddisfatti+= e.getNumeroPersone();
 					System.out.println("I "+persone+" clienti sono rimasti insoddisfatti");
 				}
 			}
