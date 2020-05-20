@@ -3,6 +3,10 @@ package it.polito.tdp.bar.model;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 
 import it.polito.tdp.bar.model.Event.EventType;
@@ -23,6 +27,20 @@ public class Simulator {
 	private int tavoliDaSei = 4; //Max 4
 	private int tavoliDaQuattro = 5; //Max 5
 	private int tableId;
+	
+	private Map<Integer, Tavolo> mappaTavoli = new HashMap<>();
+	public void setTavoli() {
+		
+		//Key = tipoTavolo, Value = numero di tavoli del tipo Key
+		this.mappaTavoli.put(4, new Tavolo(4, 5)); //Tavolo da 4
+		
+		this.mappaTavoli.put(6, new Tavolo(6, 4)); //Tavolo da 6
+		
+		this.mappaTavoli.put(8, new Tavolo(8, 4)); //Tavolo da 8
+		
+		this.mappaTavoli.put(10, new Tavolo(10, 2)); //Tavolo da 10
+
+	}
 	
 	//3. VALORI DA CALCOLARE
 	private int clienti;
@@ -91,6 +109,7 @@ public class Simulator {
 		
 		//Inizializzo le variabili del mondo e la coda degli eventi
 		
+		this.setTavoli();
 		this.tavoliDisponibili = this.numeroTotTavoli; //ad inizio simulazione ho tutti i tavoli disponibili
 		this.clienti = this.clientiInsoddisfatti = this.clientiSoddisfatti = 0;
 		
@@ -114,15 +133,62 @@ public class Simulator {
 			//La coda è ordinata in base all'istante di arrivo
 			Event e = this.queue.poll();
 			System.out.println(e);
+			//processEventWorstApproach(e);
 			processEvent(e);
 		}
 	}
 	
-	/*Event nuovo = new Event(e.getTime()+e.getDurata(), EventType.TAVOLO_LIBERATO, e.getNumeroPersone(), false, e.getDurata(), 4);
-    this.queue.add(nuovo);
-    this.clienti++;*/
-	
 	private void processEvent(Event e) {
+		switch(e.getType()) {
+		
+		case ARRIVO_GRUPPO_CLIENTI:
+			
+			int persone = e.getNumeroPersone();
+			
+			for(Integer tipoTavolo: this.mappaTavoli.keySet()) {
+				
+				if(tipoTavolo<=(2*persone) && tipoTavolo>=persone) {
+					
+					if(this.mappaTavoli.get(tipoTavolo).getNumTavoli()>0) {
+						
+						this.clienti+=e.getNumeroPersone();
+						this.clientiSoddisfatti+= e.getNumeroPersone();
+						Event nuovo = new Event(e.getTime()+e.getDurata(), EventType.TAVOLO_LIBERATO, persone, false, e.getDurata(), tipoTavolo);
+						this.queue.add(nuovo);
+						
+						int tavoliTemp = this.mappaTavoli.get(tipoTavolo).getNumTavoli() - 1;
+						this.mappaTavoli.replace(tipoTavolo, new Tavolo(tipoTavolo, tavoliTemp));
+						break;
+					}
+				}
+			}
+			
+			if(e.getTolleranza()) {
+				this.clienti+=e.getNumeroPersone();
+				this.clientiSoddisfatti+= e.getNumeroPersone();
+			}else {
+				this.clienti+=e.getNumeroPersone();
+				this.clientiInsoddisfatti+= e.getNumeroPersone();
+			}
+			
+			
+			break;
+			
+		case TAVOLO_LIBERATO:
+			
+			for(Tavolo tav: this.mappaTavoli.values()) {
+				if(tav.getTipoTavolo()==e.getIdTavoloOccupato()) {
+					int temp = tav.getNumTavoli() + 1;
+					this.mappaTavoli.replace(tav.getTipoTavolo(), new Tavolo(tav.getTipoTavolo(), temp));
+				}
+			}
+			break;
+			
+		}
+	}
+	
+	
+	private void processEventWorstApproach(Event e) {
 		
 		switch(e.getType()) {
 		
