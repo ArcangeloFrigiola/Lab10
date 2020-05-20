@@ -39,80 +39,51 @@ public class Simulator {
 		return clientiInsoddisfatti;
 	}
 	
-	public double arrotonda(double value, int numCifreDecimali) {
-		double temp = Math.pow(10, numCifreDecimali);
-		return Math.round(value * temp) / temp;
-	}
-	
 	//Metodo che restituisce un tempo tra un cliente ed il prossimo compreso tra 1 e 10 minuti
-	public Duration getIntervalloTraClienti() {
+	public int getIntervalloTraClienti() {
 		
 		double intervallo = Math.random(); //restituisce un valore compreso tra [0,1)
-		intervallo = arrotonda(intervallo, 1);
-		Duration tempo = Duration.of(0, ChronoUnit.MINUTES);
+		intervallo = Math.round((intervallo*10)+1);
 		
-		if(intervallo==0.0) {
-			tempo = Duration.of(10, ChronoUnit.MINUTES);
-		}else {
-			for(int i=1; i<10; i++) {
-				double temp = (i*1.0)/10;
-				if(intervallo==temp) {
-					tempo = Duration.of(i, ChronoUnit.MINUTES);
-				}
-			}
-		}
-		System.out.println("Tempo: "+tempo.toMinutes()+"\nNumero random: "+intervallo+"\n");
-		return tempo;
+		//System.out.println("Tempo: "+intervallo);
+		return (int)intervallo;
 	}
 	
 	//Metodo che restituisce il numero di clienti (tra 1 e 10)
 	public int getNumeroClientiRandom() {
 		
-		double numero = Math.random();
-		numero = arrotonda(numero, 1);
-		int numP=0;
+		float numero = (float) Math.random();
+		numero = Math.round(numero*10);
 		
 		if(numero==0) {
-			numP = 10;
-		}else {
-			for(int i=1; i<10; i++) {
-				double temp = (i*1.0)/10.0;
-				System.out.println("Numero in i: "+temp+"\n");
-				if(numero==temp) {
-					numP = i;
-				}
-			}
+			return 1;
 		}
-		System.out.println("Numero clienti: "+numP+"\nNumero random: "+numero+"\n");
-		return numP;
+		
+		//System.out.println("Numero clienti: "+numero+"\n");
+		return (int)numero;
 	}
 	
 	//Metodo che restituisce una tolleranza del cliente
 	public boolean getTolleranza() {
 		
-		double num = Math.random();
-		num = arrotonda(num, 1);
-		if(num==0.0) {
-			return false; //Cliente non tollerante (1 possibilità su 10)
+		double percentualeTolleranza = Math.random(); //Ad esempio 0.70, esiste una P[...] del 70% che il cliente sia tollernate
+		double valoreTolleranza = Math.random(); //Ad esempio 0.30
+		
+		if(valoreTolleranza<=percentualeTolleranza) {//se il valore di tolleranza rientra tra 0-percentualeTolleranza, allora il cliente è tollerante
+			return true;
 		}
-		return true; //Cliente tollerante (9 possibilità su 10)
+		return false;
 	}
 	
 	//Metodo che restituisce una durarta della permanenza del cliente al tavolo, tra 60 e 120 minuti
-	public Duration getPermanenzaAlTavolo() {
+	public int getPermanenzaAlTavolo() {
 		
-		double intervallo = Math.random(); //restituisce un valore compreso tra [0,1)
-		intervallo = arrotonda(intervallo, 1);
-		Duration tempo = Duration.of(60, ChronoUnit.MINUTES);
+		float intervallo = (float) Math.random(); //restituisce un valore compreso tra [0,1)
+		intervallo = Math.round((intervallo*10));
 		
-		for(int i=0; i<10; i++) {
-			double temp = (i*1.0)/10;
-			if(intervallo == temp) {
-				tempo = tempo.plus(Duration.of((6+6*i), ChronoUnit.MINUTES));
-			}
-		}
-		System.out.println("Permanenza: "+tempo.toMinutes()+"\n");
-		return tempo;
+		int num = ((int) intervallo)*6 + 60;
+		//System.out.println("Permanenza: "+num+"\n");
+		return num;
 		
 	}
 	
@@ -122,27 +93,34 @@ public class Simulator {
 		
 		this.tavoliDisponibili = this.numeroTotTavoli; //ad inizio simulazione ho tutti i tavoli disponibili
 		this.clienti = this.clientiInsoddisfatti = this.clientiSoddisfatti = 0;
-		this.tavoliDaDieci = this.tavoliDaOtto = this.tavoliDaQuattro = this.tavoliDaSei = 0; //ogni sottotipo di tavolo è libero
 		
 		this.queue.clear();
-		LocalTime minutoArrivoCliente = LocalTime.of(0, 00); //devo arrivare a 2000
+		int istanteArrivoCliente = 0; //immagino che il bar possa girare 24h/24
 		int numeroSimulazioni = 0;
 		
+		System.out.println("\nAll'istante "+istanteArrivoCliente+" ci sono "+tavoliDisponibili+" tavoli disponibili\n");
 		do {
 			
-			Event e = new Event(minutoArrivoCliente, EventType.ARRIVO_GRUPPO_CLIENTI, getNumeroClientiRandom(), getTolleranza(), getPermanenzaAlTavolo(), 0);
+			//Mi creo una coda degli eventi
+			Event e = new Event(istanteArrivoCliente, EventType.ARRIVO_GRUPPO_CLIENTI, getNumeroClientiRandom(), getTolleranza(), getPermanenzaAlTavolo(), 0);
 			this.queue.add(e);
-			minutoArrivoCliente = minutoArrivoCliente.plus(getIntervalloTraClienti());
+			istanteArrivoCliente += (getIntervalloTraClienti()); //aggiorno il tempo di arrivo del prossimo cliente
 			numeroSimulazioni++;
+			System.out.println(e);
 			
 		}while(numeroSimulazioni<this.numeroSimulazioniMax);
 		
 		while(!this.queue.isEmpty()) {
+			//La coda è ordinata in base all'istante di arrivo
 			Event e = this.queue.poll();
 			System.out.println(e);
 			processEvent(e);
 		}
 	}
+	
+	/*Event nuovo = new Event(e.getTime()+e.getDurata(), EventType.TAVOLO_LIBERATO, e.getNumeroPersone(), false, e.getDurata(), 4);
+    this.queue.add(nuovo);
+    this.clienti++;*/
 	
 	private void processEvent(Event e) {
 		
@@ -151,7 +129,6 @@ public class Simulator {
 		case ARRIVO_GRUPPO_CLIENTI:
 			
 			int persone = e.getNumeroPersone();
-			
 			if(this.tavoliDisponibili>0) {
 				if(persone<=4) {
 					if(this.tavoliDaQuattro>0) { //Se ho un tavolo da 4 libero, le metto li
@@ -162,8 +139,9 @@ public class Simulator {
 						this.tavoliDisponibili--;
 					    tableId = 4;
 						
-						Event nuovo = new Event(e.getTime().plus(e.getDurata()), EventType.TAVOLO_LIBERATO, persone, true, null, 4);
+						Event nuovo = new Event(e.getTime()+e.getDurata(), EventType.TAVOLO_LIBERATO, persone, true, e.getDurata(), tableId);
 						this.queue.add(nuovo);
+						System.out.println("I "+persone+" clienti si sono accomodati al tavolo da "+tableId);
 						
 					}else { //Se non ho un tavolo da quattro libero, cerco altro posto
 						
@@ -176,9 +154,10 @@ public class Simulator {
 								this.tavoliDisponibili--;
 								tableId = 6;
 
-								Event nuovo = new Event(e.getTime().plus(e.getDurata()), EventType.TAVOLO_LIBERATO,
-										persone, true, null, 6);
+								Event nuovo = new Event(e.getTime()+e.getDurata(), EventType.TAVOLO_LIBERATO,
+										persone, true, e.getDurata(), tableId);
 								this.queue.add(nuovo);
+								System.out.println("I "+persone+" clienti si sono accomodati al tavolo da "+tableId);
 								
 								
 							}else if(this.tavoliDaOtto>0) {
@@ -189,18 +168,21 @@ public class Simulator {
 								this.tavoliDisponibili--;
 								tableId = 8;
 
-								Event nuovo = new Event(e.getTime().plus(e.getDurata()), EventType.TAVOLO_LIBERATO,
-										persone, true, null, 8);
+								Event nuovo = new Event(e.getTime()+e.getDurata(), EventType.TAVOLO_LIBERATO,
+										persone, true, e.getDurata(), tableId);
 								this.queue.add(nuovo);
+								System.out.println("I "+persone+" clienti si sono accomodati al tavolo da "+tableId);
 								
 								
 							}else if(e.getTolleranza()) { //Se non ho nessun tavolo, provo a metterli al bancone (if tolleranza == TRUE)
 								this.clienti++;
 								this.clientiSoddisfatti++;
+								System.out.println("I "+persone+" clienti si sono accomodati al bancone");
 								
 							}else {
 								this.clienti++;
 								this.clientiInsoddisfatti++;
+								System.out.println("I "+persone+" clienti sono rimasti insoddisfatti");
 								
 							}
 						}else if(persone==3) { //Se sono esattamente 3, posso inserirle in un tavolo da 6, se c'è
@@ -213,27 +195,32 @@ public class Simulator {
 								this.tavoliDisponibili--;
 								tableId = 6;
 
-								Event nuovo = new Event(e.getTime().plus(e.getDurata()), EventType.TAVOLO_LIBERATO,
-										persone, true, null, 6);
+								Event nuovo = new Event(e.getTime()+e.getDurata(), EventType.TAVOLO_LIBERATO,
+										persone, true, e.getDurata(), tableId);
 								this.queue.add(nuovo);
+								System.out.println("I "+persone+" clienti si sono accomodati al tavolo da "+tableId);
 								
 								
 							}else if(e.getTolleranza()) { //Se non ho nessun tavolo, provo a metterli al bancone (if tolleranza == TRUE)
 								this.clienti++;
 								this.clientiSoddisfatti++;
+								System.out.println("I "+persone+" clienti si sono accomodati al bancone");
 								
 							}else {
 								this.clienti++;
 								this.clientiInsoddisfatti++;
+								System.out.println("I "+persone+" clienti sono rimasti insoddisfatti");
 								
 							}
 						}else if(e.getTolleranza()) { //Se non ho nessun tavolo, provo a metterli al bancone (if tolleranza == TRUE)
 							this.clienti++;
 							this.clientiSoddisfatti++;
+							System.out.println("I "+persone+" clienti si sono accomodati al bancone");
 							
 						}else {
 							this.clienti++;
 							this.clientiInsoddisfatti++;
+							System.out.println("I "+persone+" clienti sono rimasti insoddisfatti");
 							
 						}
 					}
@@ -247,9 +234,11 @@ public class Simulator {
 						this.tavoliDisponibili--;
 						tableId = 6;
 
-						Event nuovo = new Event(e.getTime().plus(e.getDurata()), EventType.TAVOLO_LIBERATO,
-								persone, true, null, 6);
+						Event nuovo = new Event(e.getTime()+e.getDurata(), EventType.TAVOLO_LIBERATO,
+								persone, true, e.getDurata(), tableId);
 						this.queue.add(nuovo);
+						System.out.println("I "+persone+" clienti si sono accomodati al tavolo da "+tableId);
+						
 						
 					}else {
 						if (this.tavoliDaOtto > 0) { // Se ho un tavolo da 4 libero, le metto li
@@ -260,9 +249,10 @@ public class Simulator {
 							this.tavoliDisponibili--;
 							tableId = 8;
 
-							Event nuovo = new Event(e.getTime().plus(e.getDurata()), EventType.TAVOLO_LIBERATO,
-									persone, true, null, 8);
+							Event nuovo = new Event(e.getTime()+e.getDurata(), EventType.TAVOLO_LIBERATO,
+									persone, true, e.getDurata(), tableId);
 							this.queue.add(nuovo);
+							System.out.println("I "+persone+" clienti si sono accomodati al tavolo da "+tableId);
 							
 						}else if (this.tavoliDaDieci > 0) { // Se ho un tavolo da 4 libero, le metto li
 
@@ -272,18 +262,21 @@ public class Simulator {
 							this.tavoliDisponibili--;
 							tableId = 10;
 
-							Event nuovo = new Event(e.getTime().plus(e.getDurata()), EventType.TAVOLO_LIBERATO,
-									persone, true, null, 10);
+							Event nuovo = new Event(e.getTime()+e.getDurata(), EventType.TAVOLO_LIBERATO,
+									persone, true, e.getDurata(), tableId);
 							this.queue.add(nuovo);
+							System.out.println("I "+persone+" clienti si sono accomodati al tavolo da "+tableId);
 							
 							
 						}else if(e.getTolleranza()) { //Se non ho nessun tavolo, provo a metterli al bancone (if tolleranza == TRUE)
 							this.clienti++;
 							this.clientiSoddisfatti++;
+							System.out.println("I "+persone+" clienti si sono accomodati al bancone");
 							
 						}else {
 							this.clienti++;
 							this.clientiInsoddisfatti++;
+							System.out.println("I "+persone+" clienti sono rimasti insoddisfatti");
 							
 						}
 					}
@@ -298,9 +291,10 @@ public class Simulator {
 						this.tavoliDisponibili--;
 						tableId = 8;
 
-						Event nuovo = new Event(e.getTime().plus(e.getDurata()), EventType.TAVOLO_LIBERATO,
-								persone, true, null, 8);
+						Event nuovo = new Event(e.getTime()+e.getDurata(), EventType.TAVOLO_LIBERATO,
+								persone, true, e.getDurata(), tableId);
 						this.queue.add(nuovo);
+						System.out.println("I "+persone+" clienti si sono accomodati al tavolo da "+tableId);
 						
 						
 					}else if(this.tavoliDaDieci>0) {
@@ -311,17 +305,20 @@ public class Simulator {
 						this.tavoliDisponibili--;
 						tableId = 10;
 
-						Event nuovo = new Event(e.getTime().plus(e.getDurata()), EventType.TAVOLO_LIBERATO,
-								persone, true, null, 10);
+						Event nuovo = new Event(e.getTime()+e.getDurata(), EventType.TAVOLO_LIBERATO,
+								persone, true, e.getDurata(), tableId);
 						this.queue.add(nuovo);
+						System.out.println("I "+persone+" clienti si sono accomodati al tavolo da "+tableId);
 						
 					}else if(e.getTolleranza()) { //Se non ho nessun tavolo, provo a metterli al bancone (if tolleranza == TRUE)
 						this.clienti++;
 						this.clientiSoddisfatti++;
+						System.out.println("I "+persone+" clienti si sono accomodati al bancone");
 						
 					}else {
 						this.clienti++;
 						this.clientiInsoddisfatti++;
+						System.out.println("I "+persone+" clienti sono rimasti insoddisfatti");
 						
 					}
 					
@@ -335,18 +332,21 @@ public class Simulator {
 						this.tavoliDisponibili--;
 						tableId = 10;
 
-						Event nuovo = new Event(e.getTime().plus(e.getDurata()), EventType.TAVOLO_LIBERATO,
-								persone, true, null, 10);
+						Event nuovo = new Event(e.getTime()+e.getDurata(), EventType.TAVOLO_LIBERATO,
+								persone, true, e.getDurata(), tableId);
 						this.queue.add(nuovo);
+						System.out.println("I "+persone+" clienti si sono accomodati al tavolo da "+tableId);
 						
 
 					}else if(e.getTolleranza()) { //Se non ho nessun tavolo, provo a metterli al bancone (if tolleranza == TRUE)
 						this.clienti++;
 						this.clientiSoddisfatti++;
+						System.out.println("I "+persone+" clienti si sono accomodati al bancone");
 						
 					}else {
 						this.clienti++;
 						this.clientiInsoddisfatti++;
+						System.out.println("I "+persone+" clienti sono rimasti insoddisfatti");
 						
 					}
 
@@ -355,11 +355,12 @@ public class Simulator {
 				this.clienti++;
 				if(e.getTolleranza()) {
 					this.clientiSoddisfatti++;
+					System.out.println("I "+persone+" clienti si sono accomodati al bancone");
 				}else {
 					this.clientiInsoddisfatti++;
+					System.out.println("I "+persone+" clienti sono rimasti insoddisfatti");
 				}
 			}
-			
 			break;
 			
 		case TAVOLO_LIBERATO:
@@ -374,6 +375,7 @@ public class Simulator {
 			}else if(e.getIdTavoloOccupato()==10) {
 				this.tavoliDaDieci++;
 			}
+			System.out.println("Un tavolo da "+e.getIdTavoloOccupato()+" si è liberato!");
 			break;
 		}
 		

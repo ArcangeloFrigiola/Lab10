@@ -1,7 +1,7 @@
 package it.polito.tdp.bar.model;
 
 import java.time.Duration;
-import java.time.LocalTime;
+
 
 public class Event implements Comparable<Event>{
 	
@@ -12,24 +12,27 @@ public class Event implements Comparable<Event>{
 	 */
 	
 	public enum EventType{
-		ARRIVO_GRUPPO_CLIENTI, TAVOLO_LIBERATO
+		ARRIVO_GRUPPO_CLIENTI, TAVOLO_LIBERATO;
 	}
 	
 	//ATTRIBUTI DELLA CLASSE EVENTO
-	private LocalTime time;
+	private int time; 
 	private EventType type;
 	private int numeroPersone;
 	private boolean tolleranza;
-	private Duration durata;
+	private int durata;
 	private int idTavoloOccupato;
 	
 	
 	/**
-	 * @param time
-	 * @param type
-	 * @param numeroPersone
+	 * @param time: istante di arrivo del gruppo al bar, indicativo
+	 * @param type: tipo di evento, il gruppo arriva, o il tavolo si libera
+	 * @param numeroPersone: numero di pesone di cui è composto il gruppo, necessario per l'assegnazione dei tavoli
+	 * @tolleranza tolleranza: valore boolenao che indica se il cliente è tollerante (TRUE) o meno (FALSE)
+	 * @durata durata: tempo di pemanenza dei clienti al tavolo
+	 * @idTavoloOccupato id del tavolo occupato: può assumere valori 4, 6, 8, o 10, e indica il tipo di tavolo occupato dal gruppo
 	 */
-	public Event(LocalTime time, EventType type, int numeroPersone, boolean tolleranza, Duration durata, int idTavoloOccupato) {
+	public Event(int time, EventType type, int numeroPersone, boolean tolleranza, int durata, int idTavoloOccupato) {
 		super();
 		this.time = time;
 		this.type = type;
@@ -39,11 +42,11 @@ public class Event implements Comparable<Event>{
 		this.idTavoloOccupato = idTavoloOccupato;
 	}
 
-	public LocalTime getTime() {
+	public int getTime() {
 		return time;
 	}
 
-	public void setTime(LocalTime time) {
+	public void setTime(int time) {
 		this.time = time;
 	}
 
@@ -71,11 +74,11 @@ public class Event implements Comparable<Event>{
 		this.tolleranza = tolleranza;
 	}
 
-	public Duration getDurata() {
+	public int getDurata() {
 		return durata;
 	}
 
-	public void setDurata(Duration durata) {
+	public void setDurata(int durata) {
 		this.durata = durata;
 	}
 
@@ -91,16 +94,18 @@ public class Event implements Comparable<Event>{
 	 * Gli eventi hanno un ordinamento di tipo temporale
 	 */
 	@Override
-	public int compareTo(Event other) {
+	public int compareTo(Event o) {
 		
-		return this.time.compareTo(other.time);
+		return this.time-o.getTime();
 	}
 
 	@Override
 	public String toString() {
-		return "Event [time=" + time + ", type=" + type + ", numeroPersone=" + numeroPersone + ", tolleranza="
-				+ tolleranza + ", durata=" + durata.toMinutes() + "]";
+		return "Event ["+time + ", type=" + type + ", numeroPersone=" + numeroPersone + ", tolleranza="
+				+ tolleranza + ", durata=" + durata + "]";
 	}
+
+	
 	
 	
 }

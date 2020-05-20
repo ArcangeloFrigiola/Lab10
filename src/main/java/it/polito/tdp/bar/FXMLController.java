@@ -14,7 +14,7 @@ import javafx.scene.control.TextArea;
 
 public class FXMLController {
 
-	Model model = new Model();
+	Model model;
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
 
@@ -36,6 +36,10 @@ public class FXMLController {
     void initialize() {
         assert txtResult != null : "fx:id=\"txtResult\" was not injected: check your FXML file 'Scene.fxml'.";
 
+    }
+    
+    public void setModel(Model model) {
+    	this.model = model;
     }
     
   
